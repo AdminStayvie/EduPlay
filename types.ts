@@ -24,7 +24,7 @@ export interface SoundItem {
   id: string;
   label: { en: string; id: string };
   emoji: string;
-  category: 'animal' | 'number' | 'abc';
+  category: 'animal' | 'number' | 'abc' | 'transport';
   speechText: { en: string; id: string };
   audioUrl?: string; // Optional URL for real sound effects
 }
