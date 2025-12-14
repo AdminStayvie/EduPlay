@@ -1,0 +1,7 @@
+{
+  "name": "EduPlay",
+  "description": "Interactive educational web app for toddlers with sounds, drawing, and games.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
