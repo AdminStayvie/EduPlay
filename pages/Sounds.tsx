@@ -11,7 +11,7 @@ const CATEGORIES = [
   { id: 'abc', label: { en: 'Learning', id: 'Belajar' }, emoji: '📚' },
 ];
 
-// Using stable Wikimedia Commons MP3s (transcoded from OGG/WAV)
+// Using official Google Actions Sound Library (High Quality, Low Latency, Hosted by Google)
 const SOUND_ITEMS: SoundItem[] = [
   // --- Animals ---
   { 
@@ -20,7 +20,7 @@ const SOUND_ITEMS: SoundItem[] = [
     category: 'animal', 
     label: { en: 'Dog', id: 'Anjing' }, 
     speechText: { en: 'Dog', id: 'Anjing' },
-    audioUrl: 'https://upload.wikimedia.org/wikipedia/commons/transcoded/5/58/Dog_bark.ogg/Dog_bark.ogg.mp3'
+    audioUrl: 'https://actions.google.com/sounds/v1/animals/barking.ogg'
   },
   { 
     id: '2', 
@@ -28,7 +28,7 @@ const SOUND_ITEMS: SoundItem[] = [
     category: 'animal', 
     label: { en: 'Cat', id: 'Kucing' }, 
     speechText: { en: 'Cat', id: 'Kucing' },
-    audioUrl: 'https://upload.wikimedia.org/wikipedia/commons/transcoded/b/b3/Cat_meow.ogg/Cat_meow.ogg.mp3'
+    audioUrl: 'https://actions.google.com/sounds/v1/animals/kitten_meow.ogg'
   },
   { 
     id: '3', 
@@ -36,7 +36,7 @@ const SOUND_ITEMS: SoundItem[] = [
     category: 'animal', 
     label: { en: 'Lion', id: 'Singa' }, 
     speechText: { en: 'Lion', id: 'Singa' },
-    audioUrl: 'https://upload.wikimedia.org/wikipedia/commons/transcoded/3/36/Lion_roar.ogg/Lion_roar.ogg.mp3'
+    audioUrl: 'https://actions.google.com/sounds/v1/animals/lion_roar.ogg'
   },
   { 
     id: '8', 
@@ -44,7 +44,7 @@ const SOUND_ITEMS: SoundItem[] = [
     category: 'animal', 
     label: { en: 'Cow', id: 'Sapi' }, 
     speechText: { en: 'Cow', id: 'Sapi' },
-    audioUrl: 'https://upload.wikimedia.org/wikipedia/commons/transcoded/6/67/Cow_mooing.ogg/Cow_mooing.ogg.mp3'
+    audioUrl: 'https://actions.google.com/sounds/v1/animals/cattle_mooing.ogg'
   },
   { 
     id: '9', 
@@ -52,7 +52,7 @@ const SOUND_ITEMS: SoundItem[] = [
     category: 'animal', 
     label: { en: 'Duck', id: 'Bebek' }, 
     speechText: { en: 'Duck', id: 'Bebek' },
-    audioUrl: 'https://upload.wikimedia.org/wikipedia/commons/transcoded/7/7f/Duck_quack.ogg/Duck_quack.ogg.mp3'
+    audioUrl: 'https://actions.google.com/sounds/v1/animals/duck_quack.ogg'
   },
   { 
     id: '10', 
@@ -60,7 +60,7 @@ const SOUND_ITEMS: SoundItem[] = [
     category: 'animal', 
     label: { en: 'Sheep', id: 'Domba' }, 
     speechText: { en: 'Sheep', id: 'Domba' },
-    audioUrl: 'https://upload.wikimedia.org/wikipedia/commons/transcoded/0/07/Sheep_bleating.ogg/Sheep_bleating.ogg.mp3'
+    audioUrl: 'https://actions.google.com/sounds/v1/animals/sheep_baa.ogg'
   },
   { 
     id: '11', 
@@ -68,7 +68,7 @@ const SOUND_ITEMS: SoundItem[] = [
     category: 'animal', 
     label: { en: 'Horse', id: 'Kuda' }, 
     speechText: { en: 'Horse', id: 'Kuda' },
-    audioUrl: 'https://upload.wikimedia.org/wikipedia/commons/transcoded/4/4b/Horse_neigh.ogg/Horse_neigh.ogg.mp3'
+    audioUrl: 'https://actions.google.com/sounds/v1/animals/horse_whinny.ogg'
   },
 
   // --- Transport ---
@@ -78,7 +78,7 @@ const SOUND_ITEMS: SoundItem[] = [
     category: 'transport', 
     label: { en: 'Car', id: 'Mobil' }, 
     speechText: { en: 'Car', id: 'Mobil' },
-    audioUrl: 'https://upload.wikimedia.org/wikipedia/commons/transcoded/5/53/Car_horn.ogg/Car_horn.ogg.mp3'
+    audioUrl: 'https://actions.google.com/sounds/v1/transportation/car_horn.ogg'
   },
   { 
     id: '5', 
@@ -86,10 +86,10 @@ const SOUND_ITEMS: SoundItem[] = [
     category: 'transport', 
     label: { en: 'Train', id: 'Kereta' }, 
     speechText: { en: 'Train', id: 'Kereta' },
-    audioUrl: 'https://upload.wikimedia.org/wikipedia/commons/transcoded/7/7a/Steam_train_whistle_02.ogg/Steam_train_whistle_02.ogg.mp3'
+    audioUrl: 'https://actions.google.com/sounds/v1/transportation/steam_train_whistle.ogg'
   },
 
-  // --- ABC / Learning ---
+  // --- ABC / Learning (TTS only) ---
   { 
     id: '6', 
     emoji: '🍎', 
@@ -117,7 +117,7 @@ export const Sounds: React.FC = () => {
     return () => {
         if (currentAudio) {
             currentAudio.pause();
-            currentAudio.currentTime = 0;
+            currentAudio.src = ""; 
         }
     };
   }, [currentAudio]);
@@ -137,42 +137,36 @@ export const Sounds: React.FC = () => {
       setCurrentAudio(audio);
       audio.volume = 1.0;
       
-      // Safety handler if the file fails to load entirely (404, bad format)
-      audio.onerror = () => {
-          console.warn(`Audio load failed for ${item.label.en}, fallback to TTS.`);
-          playTts();
-      };
-
       const playPromise = audio.play();
 
       if (playPromise !== undefined) {
         playPromise
             .then(() => {
-                // Auto-stop audio after 2 seconds to ensure it's not too long
-                const maxDuration = 2000; 
+                // Audio started successfully
                 
+                // Safety: Stop after 3 seconds
                 setTimeout(() => {
                     try {
                         if (!audio.paused) {
                             audio.pause();
                             audio.currentTime = 0;
                         }
-                    } catch(e) {
-                        // ignore
-                    }
-                }, maxDuration);
+                    } catch(e) { /* ignore */ }
+                }, 3000);
 
-                // Play name pronunciation shortly after sound starts
+                // Play name pronunciation shortly after sound starts (1.2s delay)
                 setTimeout(() => {
                     playTts();
-                }, 1000); 
+                }, 1200); 
             })
             .catch((e) => {
-                console.warn("Audio playback failed, fallback to TTS", e);
+                console.warn("Audio play failed (format might not be supported on this device), falling back to TTS", e);
+                // Fallback to TTS immediately if file fails (e.g. OGG issues on old Safari)
                 playTts();
             });
       }
     } else {
+      // No audio URL provided, just TTS
       playTts();
     }
 
